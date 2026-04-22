@@ -1,0 +1,107 @@
+=== Y Variable Summary ===
+series: fwd_ret_1d
+count: 2086
+mean: 0.001103302256381415
+std: 0.019280222120009755
+min: -0.12864694955448563
+25%: -0.00792021397596579
+50%: 0.0011645997980591627
+75%: 0.010902284795643036
+max: 0.1532884850891707
+iqr: 0.018822498771608825
+lower_fence: -0.03615396213337903
+upper_fence: 0.039136032953056274
+n_lower_outliers: 62
+n_upper_outliers: 49
+skew_hint: left-skew candidate
+
+🧠 Y = fwd_ret_1d (next-day return)
+
+This is the most important variable in your whole project.
+
+1️⃣ Center
+mean ≈ 0.0011 (0.11%)
+median ≈ 0.00116
+
+👉 Interpretation:
+
+almost perfectly centered
+no strong bias
+2️⃣ Spread
+std ≈ 0.019 (1.9%)
+IQR ≈ 0.0188
+
+👉 Again:
+
+std ≈ IQR → no extreme distortion
+
+3️⃣ Typical range
+25%: -0.79%
+75%: +1.09%
+
+👉 So:
+
+50% of daily returns are within roughly ±1%
+
+4️⃣ Tails
+min: -12.8%
+max: +15.3%
+
+👉 Interpretation:
+
+occasional large jumps (earnings, shocks)
+upside can exceed downside here
+5️⃣ Outliers
+lower: 62
+upper: 49
+
+👉 Slight downside dominance again
+
+6️⃣ Shape
+
+👉 Very important:
+
+near symmetric center
+fat tails
+high randomness
+🔥 Most important insight
+
+Y is almost pure noise at the daily level.
+
+
+🧠 The REAL connection (this is what matters)
+
+Now combine X and Y:
+
+X (3-day return)
+structured (some trend, some memory)
+Y (next-day return)
+almost pure noise
+
+👉 So:
+
+You are trying to predict a noisy variable using a weak signal
+
+🔥 Why regression struggled (from describe alone)
+
+You can already predict failure:
+
+X variability
+
+~3%
+
+Y variability
+
+~2%
+
+BUT:
+Y is mostly random
+X has only weak predictive structure
+
+👉 Therefore:
+
+signal << noise → low R² inevitable
+
+🎯 Final deep summary (what I expect you to say)
+
+The predictor (3-day return) has moderate variability with some tail risk, while the target (next-day return) is highly noisy and centered around zero. Both distributions have fat tails but are not dominated by extreme values. The lack of strong structure in Y suggests that any relationship between X and Y will be weak and difficult to detect, leading to low explanatory power in regression.
