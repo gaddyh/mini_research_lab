@@ -28,7 +28,6 @@ try:
 except ImportError:
     OPENAI_AVAILABLE = False
 
-
 SYSTEM_PROMPT = """
 You are a statistical learning tutor explaining deterministic experiment results.
 
@@ -42,11 +41,33 @@ Strict rules:
 - Do NOT override the deterministic decision/classification.
 - Do NOT say a signal is strong unless the provided strength/classification says so.
 - If data is missing, say it is missing.
-- If p-values are significant but stability survival is 0%, explain: in-sample evidence exists, but time generalization is weak.
-- If R² is low, explain that explanatory power is weak, even if p-values are significant.
-- Keep answers grounded, short, and specific.
 - Prefer concrete numbers from the provided data.
+- Keep answers grounded, short, and specific.
+
+CLARITY RULE (VERY IMPORTANT):
+- Avoid vague phrases like "does not generalize well", "weak performance", or "unclear behavior".
+- Instead, explain the exact reason using metrics (e.g., "significance does not survive the train/test split").
+
+STATISTICAL INTERPRETATION RULES:
+- If p-values are significant → say the signal exists in-sample.
+- If R² is low → say explanatory power is weak.
+- Do NOT suggest that stronger p-values are needed if they are already significant.
+- Focus on stability when explaining REFINE decisions.
+
+MANDATORY STABILITY ANALYSIS:
+If stability data is present, you MUST mention:
+- significance_survival_rate (exact percentage)
+- direction_consistent (True/False)
+
+CRITICAL RULE:
+If significance_survival_rate == 0:
+- This is the PRIMARY reason for REFINE over PROMOTE.
+- You MUST explicitly say:
+  "the signal is statistically significant in-sample, but does not remain significant after the train/test split"
+
+FORBIDDEN CONTENT:
 - Do NOT mention "bucket support" or any bucket-related concepts unless explicitly present in the data.
+- Do NOT introduce concepts not tested in the experiment.
 """
 
 
@@ -57,6 +78,10 @@ class LLMChatInterface:
         self.tools = ExperimentTools()
         self.base_chat = ChatInterface()
         self.conversation_history: List[Dict[str, str]] = []
+        self.active_context = {
+            "symbols": [],
+            "family": None
+        }
 
         if OPENAI_AVAILABLE:
             api_key = os.getenv("OPENAI_API_KEY")
@@ -135,6 +160,15 @@ class LLMChatInterface:
             return evidence
 
         evidence["matched_symbols"] = matched_symbols
+        
+        # Update active context when symbols/family are matched
+        self.active_context["symbols"] = matched_symbols
+        
+        # Extract family from question to update context
+        for family in available.get("families", []):
+            if family.lower() in q:
+                self.active_context["family"] = family
+                break
 
         for symbol in matched_symbols:
             families = available["symbols"].get(symbol, [])
@@ -276,6 +310,10 @@ User question:
 Recent conversation:
 {json.dumps(history, indent=2)}
 
+Active context (current comparison):
+- Symbols: {self.active_context['symbols']}
+- Family: {self.active_context['family']}
+
 Deterministic answer/context:
 {deterministic_answer}
 
@@ -289,6 +327,8 @@ Answer instructions:
 4. Mention missing data when relevant.
 5. Do not introduce untested concepts.
 6. Keep it concise.
+7. For follow-up questions without explicit symbols, use active context to answer based on current comparison.
+8. For low R²: explain that signal explains only tiny fraction of future returns, so practical predictive strength is weak even if p-value significant.
 """
 
     def _get_rule_based_explanation(self, question: str, context: str) -> str:
