@@ -246,6 +246,7 @@ def run_experiments_for_symbol(symbol: str, config: UserConfig, scoring_engine, 
     
     # Run each specified family
     all_results = {}
+    all_family_summaries = {}
     
     for param_exp in param_exps:
         print(f"\n🎯 Running parameterized experiment: {param_exp.base_name}")
@@ -445,8 +446,11 @@ def run_experiments_for_symbol(symbol: str, config: UserConfig, scoring_engine, 
         
         # Store results for this family
         all_results[param_exp.base_name] = results
+        
+        # Store family summary for cross-symbol interpretation
+        all_family_summaries[param_exp.base_name] = family_summary
     
-    return all_results
+    return all_results, all_family_summaries
 
 
 def main():

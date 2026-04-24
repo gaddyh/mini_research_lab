@@ -114,7 +114,7 @@ def generate_dynamic_experiments(horizon: str = "1d", mode: str = "level") -> li
         ParameterizedExperiment(
             base_name="volatility_clustering",
             x_col_pattern="abs_ret_{lookback}d",
-            y_col=f" fwd_abs_ret_{horizon[0]}" if horizon[0] in ['1', '3', '5'] else fwd_ret_col,  # Use absolute returns for short horizons
+            y_col=fwd_ret_col,  # Use regular forward returns for now
             lookbacks=[1, 3, 5],
             title_template=f"Do big {{lookback}}-day moves tend to be followed by big {horizon} moves?",
             description_template=f"Volatility clustering mini-project using {{lookback}}-day absolute returns vs next {horizon} return."

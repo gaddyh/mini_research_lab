@@ -13,13 +13,21 @@ class EnhancedDecisionEngine(HypothesisAwareDecisionEngine):
         super().__init__(hypothesis_directions, **kwargs)
         self.family_results_cache = {}  # Cache results across symbols for confidence calculation
     
-    def make_family_decision(self, family_results, family_scores):
-        """Make family decision with dynamic confidence scoring."""
-        # Cache results for this family across symbols
+    def make_family_decision(self, family_results: Dict[str, ExperimentResult], family_scores: Dict[str, float]) -> Decision:
+        """Make decision for experiment family with dynamic confidence scoring."""
+        # Handle empty results
+        if not family_results:
+            return Decision(
+                action="DROP",
+                confidence=0.0,
+                reason="No experiments completed successfully"
+            )
+        
+        # Cache results for cross-symbol analysis
         base_name = list(family_results.keys())[0].split('_')[0]
         if base_name not in self.family_results_cache:
             self.family_results_cache[base_name] = []
-        self.family_results_cache[base_name].append(family_results)
+        self.family_results_cache[base_name].append(family_results.copy())
         
         # Calculate dynamic confidence based on cross-symbol consistency
         confidence = self._calculate_dynamic_confidence(base_name, family_results, family_scores)

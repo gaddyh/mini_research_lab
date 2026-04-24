@@ -153,18 +153,31 @@ class StandardDecisionEngine(DecisionEngine):
         meaningful_effects = sum(1 for result in family_results.values() 
                               if result.regression.r_squared > 0.01)
         
-        # NEW LOGIC: Focus on signal validity with more lenient REFINE criteria
-        if (direction_consistent and significance_ratio >= 0.7 and 
-            meaningful_effects >= 1 and total_score >= self.promote_threshold):
+        # NEW LOGIC: Focus on signal validity with financial context
+        
+        # Financial context: R² < 0.01 is normal in finance, don't penalize too hard
+        max_r_squared = max([result.regression.r_squared for result in family_results.values()])
+        financial_context_friendly = max_r_squared < 0.01
+        
+        # Rule #1: consistent direction + some significance = at least REFINE
+        if direction_consistent and significance_ratio >= 0.4:
+            action = "REFINE"
+            confidence = 0.5
+        # Rule #2: strong signal validity = PROMOTE
+        elif (direction_consistent and significance_ratio >= 0.7 and 
+              meaningful_effects >= 1 and total_score >= self.promote_threshold):
             action = "PROMOTE"
             confidence = 0.8
+        # Rule #3: moderate signal validity = REFINE
         elif (direction_consistent and significance_ratio >= 0.5 and 
               meaningful_effects >= 1):
             action = "REFINE"
             confidence = 0.6
-        elif (direction_consistent and significance_ratio >= 0.4):
+        # Rule #4: financial context - weak R² is normal, give REFINE chance
+        elif (direction_consistent and significance_ratio >= 0.3 and 
+              financial_context_friendly):
             action = "REFINE"
-            confidence = 0.5
+            confidence = 0.4
         else:
             action = "DROP"
             confidence = 0.3
@@ -205,7 +218,11 @@ class StandardDecisionEngine(DecisionEngine):
         if action == "PROMOTE":
             return "Strong signal validity: consistent direction, high significance ratio, and meaningful effect sizes across variants."
         elif action == "REFINE":
-            return "Moderate signal validity: consistent direction but needs refinement for stronger significance or effect sizes."
+            # Check if this is due to financial context (low R²)
+            if "weak_r_squared" in reason_codes:
+                return "Moderate signal validity: consistent direction with low R² (normal in finance) - shows promise but needs refinement."
+            else:
+                return "Moderate signal validity: consistent direction but needs refinement for stronger significance or effect sizes."
         else:
             return "Poor signal validity: inconsistent direction, low significance, or insufficient effect sizes."
     

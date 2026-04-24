@@ -69,11 +69,13 @@ def main():
     
     # Run experiments for each symbol
     all_symbol_results = {}
+    all_family_summaries = {}
     
     for symbol in config.symbols:
-        results = run_experiments_for_symbol(symbol, config, scoring_engine, decision_engine, 
+        results, family_summaries = run_experiments_for_symbol(symbol, config, scoring_engine, decision_engine, 
                                            mode=args.mode, horizon=args.horizon)
         all_symbol_results[symbol] = results
+        all_family_summaries[symbol] = family_summaries
     
     # Print overall summary
     print(f"\n{'='*80}")
@@ -92,6 +94,7 @@ def main():
     
     # Run stability analysis for each symbol
     from mini_research_lab.core import StandardStabilityAnalyzer, FamilyStabilityAnalyzer, StabilityConfig, ExperimentResult
+    from mini_research_lab.core.cross_symbol_interpreter import CrossSymbolInterpreter
     from mini_research_lab.lab import MiniResearchLab
     from mini_research_lab.data_loader import download_prices
     from mini_research_lab.features import add_strategy_features
@@ -305,9 +308,26 @@ def main():
         print(f"  {status}")
         print(f"  Confidence: {confidence}")
     
-    print(f"\n✅ All experiments completed!")
-    print(f"📁 Results saved to reports/tables/ and reports/figures/")
-    print(f"📄 JSON files copied to reports/ directory")
+    # Cross-symbol interpretation
+    print(f"\n{'='*80}")
+    print(f" CROSS-SYMBOL INTERPRETATION")
+    print(f"{'='*80}")
+    
+    interpreter = CrossSymbolInterpreter()
+    
+    # Get family name for interpretation
+    family_name = ""
+    if config.families:
+        family_name = config.families[0]  # Use first family for single-family analysis
+    
+    interpretation = interpreter.interpret_cross_symbol_results(all_family_summaries, all_stability_results)
+    
+    # Print formatted interpretation
+    print(interpreter.format_interpretation_output(interpretation, family_name))
+    
+    print(f"\n All experiments completed!")
+    print(f" Results saved to reports/tables/ and reports/figures/")
+    print(f" JSON files copied to reports/directory")
     
     return 0
 
