@@ -1,90 +1,199 @@
-# Mini Research Lab
+# 📊 Mini Research Lab — Signal Validation Engine
 
-A lightweight framework to practice **describe tables** and **single linear regression summaries** on financial data.
-
-Goal:
-- Build intuition, not just run models
-- Learn how tables can **mislead you**
-- Repeat the same analysis pattern across multiple ideas
+A Python-based system for evaluating trading ideas as **statistical hypotheses** and determining whether they survive real market conditions.
 
 ---
 
-## What this project is
+## 🚀 What This Project Does
 
-A small environment to run many **mini experiments** of the form:
+Most trading tools try to **find profitable strategies**.
 
-Y = α + βX + ε
+This system does something different:
 
-Where:
-- X = one signal (recent return, volatility, distance from mean…)
-- Y = future outcome (next return, next volatility…)
+> It tests whether an idea is **real, stable, and generalizable** — or just noise.
 
 ---
 
-## Core Learning Focus
+## 🧠 Core Concept
 
-This project is NOT about:
-- finding alpha immediately
-- building production models
+Every idea goes through a structured pipeline:
 
-This project IS about:
-- reading `describe()` deeply
-- interpreting regression summaries correctly
-- spotting traps:
-  - significant but useless
-  - high R² but unstable
-  - skewed distributions
-  - outliers dominating std
+```
+Idea → Signal → Variations → Statistical Test → Score → Stability → Decision
+```
 
----
+Instead of asking:
 
-## Project Structure
-mini_research_lab/
-├── data/ # raw and processed data
-├── notebooks/ # one idea per notebook
-├── reports/ # saved figures and tables
-├── src/mini_research_lab/
-│ ├── data_loader.py
-│ ├── features.py
-│ ├── experiment_specs.py
-│ ├── summaries.py
-│ ├── plotting.py
-│ └── lab.py
+> “Does this work?”
 
+We ask:
+
+> “Does this survive reality?”
 
 ---
 
-## Setup
+## 🔍 Example Insights
+
+### ✅ Volatility Clustering
 
 ```bash
-# Install in editable mode (recommended for development)
-pip install -e .
+python cli.py --symbols AAPL MSFT SPY --family volatility_clustering
+```
 
-# Or install directly
-pip install mini-research-lab
+Output:
 
-from mini_research_lab import (
-    download_prices,
-    add_return_features,
-    MiniResearchLab,
-    default_experiments,
-    plot_experiment_bundle,
-)
+```
+CROSS-SYMBOL SUMMARY
 
-prices = download_prices("AAPL", start="2018-01-01")
-df = add_return_features(prices)
+VOLATILITY CLUSTERING:
+  3/3 → PROMOTE
+  ✔ Strong across market
+  Confidence: HIGH
+```
 
-lab = MiniResearchLab(df)
+📌 Interpretation:
+- Significant across all assets  
+- Consistent direction  
+- Meaningful explanatory power (R² up to ~0.12)  
 
-spec = default_experiments()[0]
+➡️ This is a **real market structure**
 
-result = lab.run_experiment(spec.x_col, spec.y_col)
+---
 
-print(result["x_describe"].to_dict())
-print(result["y_describe"].to_dict())
-print(result["regression"].to_dict())
+### ⚠️ Mean Reversion (Short-Term Only)
 
-print(result["model"].summary())
+```bash
+python cli.py --symbols AAPL --family mean_reversion \
+  --start-date 2020-01-01 --end-date 2023-12-31
+```
 
-plot_experiment_bundle(df, spec.x_col, spec.y_col, title_prefix=spec.name)
+Output:
 
+```
+MEAN REVERSION:
+  0/1 → PROMOTE
+  1/1 → REFINE
+  ⚠ Signal is weak or regime-dependent
+  Confidence: MEDIUM
+```
+
+📌 Interpretation:
+- Strong only at 1-day horizon  
+- Rapid decay across longer windows  
+- Not stable over time  
+
+➡️ This is **conditional / regime-dependent behavior**
+
+---
+
+## 🧩 Supported Signal Families
+
+- Mean Reversion  
+- Momentum  
+- Volatility Clustering  
+- Moving Average Distance  
+
+Each family is tested across multiple parameter variations (e.g. lookbacks).
+
+---
+
+## 📊 Statistical Approach
+
+For each signal variation:
+
+- Linear regression (OLS)
+- Coefficient (direction & strength)
+- P-value (statistical significance)
+- R² (explanatory power)
+
+Signals are evaluated based on:
+
+- Direction consistency  
+- Significance ratio  
+- Effect size  
+- Cross-symbol validation  
+
+---
+
+## 🧪 Cross-Symbol Validation
+
+The system tests signals across multiple assets:
+
+```
+AAPL → PROMOTE
+MSFT → PROMOTE
+SPY  → PROMOTE
+```
+
+Then aggregates:
+
+```
+3/3 → PROMOTE → Strong across market
+```
+
+📌 This answers:
+
+> Is this a **real market behavior**, or just noise in one stock?
+
+---
+
+## 🧠 Why This Matters
+
+Many signals look good because:
+
+- They are overfit  
+- They only work in one time period  
+- They only work on one asset  
+
+This system explicitly tests:
+
+✔ Stability across time  
+✔ Robustness across parameters  
+✔ Generalization across assets  
+
+---
+
+## 🛠️ How to Run
+
+```bash
+pip install -r requirements.txt
+```
+
+```bash
+python cli.py --symbols AAPL MSFT SPY --family volatility_clustering
+```
+
+---
+
+## 📁 Output
+
+Results are saved to:
+
+```
+reports/
+  ├── tables/
+  ├── figures/
+  └── *.json
+```
+
+---
+
+## 🧠 Summary
+
+This project shifts the focus from:
+
+```
+“finding strategies”
+```
+
+to:
+
+```
+validating ideas
+```
+
+---
+
+## 📌 Final Thought
+
+> A signal that doesn’t survive time and across assets is not a signal — it’s noise.
