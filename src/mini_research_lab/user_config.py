@@ -75,7 +75,7 @@ class UserConfig:
         if not self.families:
             issues.append("No experiment families provided")
         
-        valid_families = ["mean_reversion", "momentum", "volatility_clustering", "ma_distance_reversion"]
+        valid_families = ["mean_reversion", "momentum", "volatility_clustering", "ma_distance_reversion", "rsi_mean_reversion", "rsi_bucket_analysis", "donchian_breakout_5d", "donchian_breakout_10d", "donchian_breakout_20d", "rsi_mean_reversion_event", "donchian_breakout_event", "ma_crossover_event"]
         for family in self.families:
             if family not in valid_families:
                 issues.append(f"Invalid family: {family}. Valid options: {valid_families}")

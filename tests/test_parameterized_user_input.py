@@ -17,8 +17,8 @@ if str(src_path) not in sys.path:
 
 from mini_research_lab.lab import MiniResearchLab
 from mini_research_lab.data_loader import download_prices
-from mini_research_lab.features import add_return_features
-from mini_research_lab.experiment_specs import parameterized_experiments, generate_variations
+from mini_research_lab.features import add_strategy_features, add_event_based_features
+from mini_research_lab.experiment_specs import parameterized_experiments, generate_variations, generate_dynamic_experiments
 from mini_research_lab.plotting import plot_experiment_bundle
 from mini_research_lab.user_config import load_config, UserConfig
 
@@ -67,7 +67,7 @@ def create_experiment_json(exp_name: str, param_exp, result: dict, tables_dir: P
         "hypothesis": {
             "expected_pattern": "negative_coefficient" if "mean_reversion" in param_exp.base_name or "ma_distance_reversion" in param_exp.base_name else "positive_coefficient",
             "expected_coef_sign": "negative" if "mean_reversion" in param_exp.base_name or "ma_distance_reversion" in param_exp.base_name else "positive",
-            "description": param_exp.description_template.format(lookback="X")
+            "description": param_exp.description_template.format(lookback="X", bucket="X")
         },
         "regression": {
             "intercept": reg_dict["intercept"],
@@ -209,7 +209,7 @@ def create_family_summary_json(param_exp, results: dict, comparison_dir: Path, s
     return convert_to_json_serializable(family_summary)
 
 
-def run_experiments_for_symbol(symbol: str, config: UserConfig, scoring_engine, decision_engine):
+def run_experiments_for_symbol(symbol: str, config: UserConfig, scoring_engine, decision_engine, mode: str = "level", horizon: str = "1d"):
     """Run experiments for a single symbol."""
     
     print(f"\n{'='*80}")
@@ -223,7 +223,11 @@ def run_experiments_for_symbol(symbol: str, config: UserConfig, scoring_engine, 
             print(f"⚠️  No data downloaded for {symbol}")
             return None
         
-        df = add_return_features(prices)
+        # Choose feature generator based on mode
+        if mode == "event":
+            df = add_event_based_features(prices)
+        else:
+            df = add_strategy_features(prices)
         print(f"✅ Data loaded for {symbol}: {len(df)} observations from {df.index[0]} to {df.index[-1]}")
         
     except Exception as e:
@@ -232,8 +236,8 @@ def run_experiments_for_symbol(symbol: str, config: UserConfig, scoring_engine, 
     
     lab = MiniResearchLab(df)
     
-    # Get parameterized experiments
-    all_param_exps = parameterized_experiments()
+    # Get dynamic experiments based on mode and horizon
+    all_param_exps = generate_dynamic_experiments(horizon=horizon, mode=mode)
     
     # Filter by user-specified families
     param_exps = [exp for exp in all_param_exps if exp.base_name in config.families]
@@ -341,7 +345,7 @@ def run_experiments_for_symbol(symbol: str, config: UserConfig, scoring_engine, 
         with open(comparison_dir / "comparison_summary.txt", "w") as f:
             f.write(f"=== {param_exp.base_name.upper()} COMPARISON SUMMARY ===\n")
             f.write(f"Symbol: {symbol}\n")
-            f.write(f"Experiment: {param_exp.description_template.format(lookback='X')}\n")
+            f.write(f"Experiment: {param_exp.description_template.format(lookback='X', bucket='X')}\n")
             f.write(f"Lookbacks tested: {param_exp.lookbacks}\n")
             f.write(f"Successful variations: {len(results)}\n\n")
             

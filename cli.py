@@ -23,6 +23,8 @@ def main():
     # Arguments
     parser.add_argument("--symbols", nargs="+", help="Symbols to analyze (e.g., AAPL MSFT SPY)")
     parser.add_argument("--family", help="Single family to analyze (e.g., volatility_clustering)")
+    parser.add_argument("--mode", choices=["level", "event"], default="level", help="Analysis mode: level or event")
+    parser.add_argument("--horizon", choices=["1d", "3d", "5d", "10d", "20d"], default="1d", help="Forward return horizon for analysis")
     parser.add_argument("--start-date", default="2015-01-01", help="Start date (YYYY-MM-DD)")
     parser.add_argument("--end-date", default="today", help="End date (YYYY-MM-DD or 'today')")
     parser.add_argument("--train-end-date", default="2020-12-31", help="Train end date (YYYY-MM-DD)")
@@ -69,9 +71,9 @@ def main():
     all_symbol_results = {}
     
     for symbol in config.symbols:
-        results = run_experiments_for_symbol(symbol, config, scoring_engine, decision_engine)
-        if results:
-            all_symbol_results[symbol] = results
+        results = run_experiments_for_symbol(symbol, config, scoring_engine, decision_engine, 
+                                           mode=args.mode, horizon=args.horizon)
+        all_symbol_results[symbol] = results
     
     # Print overall summary
     print(f"\n{'='*80}")
@@ -82,6 +84,106 @@ def main():
         print(f"\n🎯 {symbol}:")
         for family_name, family_results in symbol_results.items():
             print(f"  {family_name}: {len(family_results)} experiments completed")
+    
+    # Stability analysis
+    print(f"\n{'='*80}")
+    print(f"📊 STABILITY ANALYSIS")
+    print(f"{'='*80}")
+    
+    # Run stability analysis for each symbol
+    from mini_research_lab.core import StandardStabilityAnalyzer, FamilyStabilityAnalyzer, StabilityConfig, ExperimentResult
+    from mini_research_lab.lab import MiniResearchLab
+    from mini_research_lab.data_loader import download_prices
+    from mini_research_lab.features import add_strategy_features
+    from mini_research_lab.experiment_specs import parameterized_experiments, generate_variations
+    
+    stability_config = StabilityConfig()
+    stability_analyzer = StandardStabilityAnalyzer(stability_config)
+    family_stability_analyzer = FamilyStabilityAnalyzer(stability_analyzer)
+    
+    all_stability_results = {}
+    
+    for symbol, symbol_results in all_symbol_results.items():
+        print(f"\n🔍 Analyzing stability for {symbol}...")
+        
+        # Load and split data for stability analysis
+        data = download_prices(symbol, config.start_date, config.get_actual_end_date())
+        data = add_strategy_features(data)
+        
+        # Split into train/test periods
+        train_data = data[data.index <= config.get_actual_train_end_date()]
+        test_data = data[data.index > config.get_actual_train_end_date()]
+        
+        # Run stability analysis for each family
+        symbol_stability = {}
+        
+        for family_name, family_results in symbol_results.items():
+            # Create lab instances for train and test
+            train_lab = MiniResearchLab(train_data)
+            test_lab = MiniResearchLab(test_data)
+            
+            # Get the parameterized experiment
+            param_exp = None
+            for exp in parameterized_experiments():
+                if exp.base_name == family_name:
+                    param_exp = exp
+                    break
+            
+            if not param_exp:
+                continue
+            
+            # Run experiments on train and test data
+            train_results = train_lab.run_parameterized_experiment(param_exp)
+            test_results = test_lab.run_parameterized_experiment(param_exp)
+            
+            # Create ExperimentResult objects
+            train_experiment_results = {}
+            test_experiment_results = {}
+            
+            for exp_name in train_results.keys():
+                if exp_name in test_results:
+                    variations = generate_variations(param_exp)
+                    spec = next(s for s in variations if s.name == exp_name)
+                    
+                    train_experiment_results[exp_name] = ExperimentResult(
+                        spec=spec,
+                        x_describe=train_results[exp_name]["x_describe"],
+                        y_describe=train_results[exp_name]["y_describe"],
+                        regression=train_results[exp_name]["regression"],
+                        model=train_results[exp_name]["model"],
+                        bucketed_analysis=train_results[exp_name].get("bucketed_analysis")
+                    )
+                    
+                    test_experiment_results[exp_name] = ExperimentResult(
+                        spec=spec,
+                        x_describe=test_results[exp_name]["x_describe"],
+                        y_describe=test_results[exp_name]["y_describe"],
+                        regression=test_results[exp_name]["regression"],
+                        model=test_results[exp_name]["model"],
+                        bucketed_analysis=test_results[exp_name].get("bucketed_analysis")
+                    )
+            
+            # Analyze family stability
+            family_stability_data = {
+                exp_name: (train_experiment_results[exp_name], test_experiment_results[exp_name])
+                for exp_name in train_experiment_results.keys()
+                if exp_name in test_experiment_results
+            }
+            
+            family_stability = family_stability_analyzer.analyze_family_stability(family_stability_data)
+            symbol_stability[family_name] = family_stability
+            
+            # Print stability summary
+            print(f"\n📊 {symbol.upper()} - {family_name.upper().replace('_', ' ')} STABILITY:")
+            print(f"  Average Stability Score: {family_stability.avg_stability_score:.1f}")
+            print(f"  Best Stability Score: {family_stability.best_stability_score}")
+            print(f"  High Stability: {family_stability.high_stability_count}")
+            print(f"  Moderate Stability: {family_stability.moderate_stability_count}")
+            print(f"  Low Stability: {family_stability.low_stability_count}")
+            print(f"  Direction Consistent: {'✓' if family_stability.direction_consistent else '✗'}")
+            print(f"  Significance Survival Rate: {family_stability.significance_survival_rate:.1%}")
+        
+        all_stability_results[symbol] = symbol_stability
     
     # Cross-symbol summary
     print(f"\n{'='*80}")
