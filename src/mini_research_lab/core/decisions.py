@@ -66,13 +66,16 @@ class StandardDecisionEngine(DecisionEngine):
         else:
             reason_codes.append("no_bucket_support")
         
-        # Determine action
-        if (reg.p_value < 0.01 and reg.r_squared > 0.01 and bucket_support):
+        # Determine action - more lenient for strong signals like volatility
+        if (reg.p_value < 0.01 and reg.r_squared > 0.01):
             action = "PROMOTE"
             confidence = 0.8
         elif (reg.p_value < 0.05 and reg.r_squared > 0.005):
             action = "REFINE"
             confidence = 0.6
+        elif (reg.p_value < 0.10 and reg.r_squared > 0.003):
+            action = "REFINE"
+            confidence = 0.5
         else:
             action = "DROP"
             confidence = 0.3
@@ -113,31 +116,55 @@ class StandardDecisionEngine(DecisionEngine):
         elif significant_count >= 1:
             reason_codes.append("some_significant_variants")
         else:
-            reason_codes.append("no_significant_variants")
+            reason_codes.append("insufficient_signal_strength")
         
         if direction_consistent:
             reason_codes.append("consistent_direction")
         else:
             reason_codes.append("inconsistent_direction")
         
+        # Check for meaningful effect sizes
+        meaningful_effects = sum(1 for result in family_results.values() 
+                              if result.regression.r_squared > 0.01)
+        if meaningful_effects >= 2:
+            reason_codes.append("meaningful_r_squared")
+        elif meaningful_effects >= 1:
+            reason_codes.append("some_meaningful_r_squared")
+        else:
+            reason_codes.append("weak_r_squared")
+        
+        # Add stability info only if relevant for context, not as decision factor
         if avg_stability >= self.stability_requirement:
             reason_codes.append("high_stability")
         elif avg_stability >= 40:
             reason_codes.append("moderate_stability")
-        else:
-            reason_codes.append("low_stability")
         
-        # Determine action
+        # Add signal validity indicator for PROMOTE decisions
+        if (direction_consistent and (significant_count / total_count) >= 0.7 and meaningful_effects >= 1):
+            reason_codes.append("strong_signal_validity")
+        
+        # Determine action - focus on signal validity, not variation stability
         total_score = family_scores.get('total', 0)
         
-        if (significant_count >= 2 and direction_consistent and 
-            avg_stability >= self.stability_requirement and total_score >= self.promote_threshold):
+        # Calculate significance ratio
+        significance_ratio = significant_count / total_count
+        
+        # Check for meaningful effect sizes across variants
+        meaningful_effects = sum(1 for result in family_results.values() 
+                              if result.regression.r_squared > 0.01)
+        
+        # NEW LOGIC: Focus on signal validity with more lenient REFINE criteria
+        if (direction_consistent and significance_ratio >= 0.7 and 
+            meaningful_effects >= 1 and total_score >= self.promote_threshold):
             action = "PROMOTE"
             confidence = 0.8
-        elif (significant_count >= 1 and direction_consistent and 
-              avg_stability >= 40 and total_score >= self.refine_threshold):
+        elif (direction_consistent and significance_ratio >= 0.5 and 
+              meaningful_effects >= 1):
             action = "REFINE"
             confidence = 0.6
+        elif (direction_consistent and significance_ratio >= 0.4):
+            action = "REFINE"
+            confidence = 0.5
         else:
             action = "DROP"
             confidence = 0.3
@@ -176,11 +203,11 @@ class StandardDecisionEngine(DecisionEngine):
     def _generate_reason_text(self, action: str, reason_codes: List[str]) -> str:
         """Generate human-readable reason text."""
         if action == "PROMOTE":
-            return "Strong evidence across multiple variants with consistent direction and good stability."
+            return "Strong signal validity: consistent direction, high significance ratio, and meaningful effect sizes across variants."
         elif action == "REFINE":
-            return "Some evidence exists but needs refinement - inconsistent or weak signals."
+            return "Moderate signal validity: consistent direction but needs refinement for stronger significance or effect sizes."
         else:
-            return "Insufficient evidence or contradictory results - not worth pursuing."
+            return "Poor signal validity: inconsistent direction, low significance, or insufficient effect sizes."
     
     def _select_representative_experiments(self, family_results: Dict[str, ExperimentResult], 
                                          family_scores: Dict[str, float]) -> Dict[str, str]:

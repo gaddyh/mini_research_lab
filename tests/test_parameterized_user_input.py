@@ -30,6 +30,7 @@ from mini_research_lab.core import (
     ExperimentSpec,
     ExperimentResult
 )
+from mini_research_lab.core.enhanced_decisions import EnhancedDecisionEngine
 
 
 def copy_json_to_reports(source_path: Path, target_name: str):
@@ -129,7 +130,7 @@ def create_family_summary_json(param_exp, results: dict, comparison_dir: Path, s
         "ma_distance_reversion": -1  # Expect negative coefficients
     }
     
-    decision_engine = HypothesisAwareDecisionEngine(hypothesis_directions)
+    decision_engine = EnhancedDecisionEngine(hypothesis_directions)
     
     # Score all experiments
     scored_experiments = []
@@ -470,7 +471,7 @@ def main():
         "ma_distance_reversion": -1  # Expect negative coefficients
     }
     
-    decision_engine = HypothesisAwareDecisionEngine(hypothesis_directions)
+    decision_engine = EnhancedDecisionEngine(hypothesis_directions)
     
     # Run experiments for each symbol
     all_symbol_results = {}
