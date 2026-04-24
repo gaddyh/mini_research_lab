@@ -14,3 +14,62 @@ upper_fence: 0.07443880557118997
 n_lower_outliers: 52
 n_upper_outliers: 34
 skew_hint: left-skew candidate
+
+🧠 X = ret_3d (3-day return)
+1️⃣ Center (baseline behavior)
+mean ≈ 0.0033 (0.33%)
+median ≈ 0.0042 (0.42%)
+
+👉 Interpretation:
+
+slight positive drift (expected in equities)
+mean < median → slight left skew
+BUT difference is small → core is roughly symmetric
+
+2️⃣ Spread (typical movement)
+std ≈ 0.032 (3.2%)
+IQR ≈ 0.035 (3.5%)
+
+👉 Key insight:
+
+std ≈ IQR → variability is “honest”
+
+This means:
+
+no extreme tail distortion dominating variance
+bulk of movement is real everyday variation
+3️⃣ Typical range (this is critical)
+25%: -1.38%
+75%: +2.14%
+
+👉 So:
+
+50% of observations are between -1.4% and +2.1%
+
+4️⃣ Tails (where things get interesting)
+min: -18.9%
+max: +15.1%
+
+👉 Interpretation:
+
+downside worse than upside → crash behavior
+asymmetry is not in center, but in tails
+5️⃣ Outliers (quantified)
+lower outliers: 52
+upper outliers: 34
+
+👉 Interpretation:
+
+more extreme negative events
+confirms fat downside tail
+6️⃣ What kind of distribution is this?
+
+👉 Not normal.
+
+Because:
+
+fat tails (min/max far beyond IQR)
+skew not strong in center but present in tails
+7️⃣ Mental model of X
+
+A mostly symmetric distribution with moderate daily variation, but occasional large downside shocks and some upside spikes.

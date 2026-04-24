@@ -1,0 +1,31 @@
+=== MEAN_REVERSION COMPARISON SUMMARY ===
+Experiment: Mean reversion mini-project using recent X-day return vs next 1-day return.
+Lookbacks tested: [1, 3, 5, 10, 20]
+Successful variations: 5
+
+DETAILED RESULTS:
+--------------------------------------------------------------------------------
+Experiment                | Coefficient | P-value | R-squared | Obs   
+--------------------------------------------------------------------------------
+mean_reversion_1d_to_1d   |     -0.0695 |  0.0015 |    0.0048 |   2086
+mean_reversion_3d_to_1d   |     -0.0274 |  0.0378 |    0.0021 |   2084
+mean_reversion_5d_to_1d   |     -0.0171 |  0.1009 |    0.0013 |   2082
+mean_reversion_10d_to_1d  |     -0.0112 |  0.1350 |    0.0011 |   2077
+mean_reversion_20d_to_1d  |     -0.0010 |  0.8541 |    0.0000 |   2067
+
+================================================================================
+SIGNIFICANCE ANALYSIS:
+--------------------------------------------------------------------------------
+STATISTICALLY SIGNIFICANT RESULTS (p < 0.05):
+  - mean_reversion_1d_to_1d: NEGATIVE (mean reversion), p=0.0015, R²=0.0048
+  - mean_reversion_3d_to_1d: NEGATIVE (mean reversion), p=0.0378, R²=0.0021
+
+================================================================================
+EFFECT SIZE ANALYSIS:
+--------------------------------------------------------------------------------
+RESULTS BY EFFECT SIZE (|coefficient|):
+  1. mean_reversion_1d_to_1d (to): -0.0695 (p=0.0015)
+  2. mean_reversion_3d_to_1d (to): -0.0274 (p=0.0378)
+  3. mean_reversion_5d_to_1d (to): -0.0171 (p=0.1009)
+  4. mean_reversion_10d_to_1d (to): -0.0112 (p=0.1350)
+  5. mean_reversion_20d_to_1d (to): -0.0010 (p=0.8541)

@@ -12,6 +12,30 @@ class ExperimentSpec:
     description: str = ""
 
 
+@dataclass(frozen=True)
+class ParameterizedExperiment:
+    base_name: str
+    x_col_pattern: str  # Use {lookback} as placeholder, e.g., "ret_{lookback}d"
+    y_col: str
+    lookbacks: list[int]
+    title_template: str  # Use {lookback} as placeholder
+    description_template: str  # Use {lookback} as placeholder
+
+
+def generate_variations(param_exp: ParameterizedExperiment) -> list[ExperimentSpec]:
+    """Generate ExperimentSpec variations from a ParameterizedExperiment."""
+    variations = []
+    for lookback in param_exp.lookbacks:
+        variations.append(ExperimentSpec(
+            name=f"{param_exp.base_name}_{lookback}d_to_1d",
+            x_col=param_exp.x_col_pattern.format(lookback=lookback),
+            y_col=param_exp.y_col,
+            title=param_exp.title_template.format(lookback=lookback),
+            description=param_exp.description_template.format(lookback=lookback)
+        ))
+    return variations
+
+
 def default_experiments() -> list[ExperimentSpec]:
     return [
         ExperimentSpec(
@@ -41,5 +65,35 @@ def default_experiments() -> list[ExperimentSpec]:
             y_col="fwd_ret_1d",
             title="Does distance from 20-day moving average predict next-day return?",
             description="Moving-average distance mini-project for mean reversion intuition.",
+        ),
+    ]
+
+
+def parameterized_experiments() -> list[ParameterizedExperiment]:
+    """Return list of parameterized experiments for generating variations."""
+    return [
+        ParameterizedExperiment(
+            base_name="mean_reversion",
+            x_col_pattern="ret_{lookback}d",
+            y_col="fwd_ret_1d",
+            lookbacks=[1, 3, 5, 10, 20],
+            title_template="Do extreme {lookback}-day moves revert next day?",
+            description_template="Mean reversion mini-project using recent {lookback}-day return vs next 1-day return."
+        ),
+        ParameterizedExperiment(
+            base_name="momentum",
+            x_col_pattern="ret_{lookback}d",
+            y_col="fwd_ret_3d",
+            lookbacks=[3, 5, 10, 20],
+            title_template="Do recent {lookback}-day gains continue over the next 3 days?",
+            description_template="Momentum mini-project using recent {lookback}-day return vs next 3-day return."
+        ),
+        ParameterizedExperiment(
+            base_name="volatility_clustering",
+            x_col_pattern="abs_ret_{lookback}d",
+            y_col="fwd_abs_ret_1d",
+            lookbacks=[1, 3, 5],
+            title_template="Do big {lookback}-day moves tend to be followed by big 1-day moves?",
+            description_template="Volatility clustering mini-project using {lookback}-day absolute returns."
         ),
     ]

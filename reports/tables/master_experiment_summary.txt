@@ -1,0 +1,84 @@
+
+============================================================
+EXPERIMENT SUITE: MEAN_REVERSION
+Timestamp: 2026-04-24 15:41:56
+Variations run: 3
+Lookbacks: [1, 3, 5, 10, 20]
+  - mean_reversion_1d_to_1d: coef=-0.0695, p=0.0015, R²=0.0048 [✓ SIGNIFICANT]
+  - mean_reversion_3d_to_1d: coef=-0.0274, p=0.0378, R²=0.0021 [✓ SIGNIFICANT]
+  - mean_reversion_5d_to_1d: coef=-0.0171, p=0.1009, R²=0.0013 [✗ NOT SIGNIFICANT]
+
+============================================================
+EXPERIMENT SUITE: MEAN_REVERSION
+Timestamp: 2026-04-24 15:43:03
+Variations run: 3
+Lookbacks: [1, 3, 5, 10, 20]
+  - mean_reversion_1d_to_1d: coef=-0.0695, p=0.0015, R²=0.0048 [✓ SIGNIFICANT]
+  - mean_reversion_3d_to_1d: coef=-0.0274, p=0.0378, R²=0.0021 [✓ SIGNIFICANT]
+  - mean_reversion_5d_to_1d: coef=-0.0171, p=0.1009, R²=0.0013 [✗ NOT SIGNIFICANT]
+
+============================================================
+EXPERIMENT SUITE: MEAN_REVERSION
+Timestamp: 2026-04-24 15:44:51
+Variations run: 5
+Lookbacks: [1, 3, 5, 10, 20]
+  - mean_reversion_1d_to_1d: coef=-0.0695, p=0.0015, R²=0.0048 [✓ SIGNIFICANT]
+  - mean_reversion_3d_to_1d: coef=-0.0274, p=0.0378, R²=0.0021 [✓ SIGNIFICANT]
+  - mean_reversion_5d_to_1d: coef=-0.0171, p=0.1009, R²=0.0013 [✗ NOT SIGNIFICANT]
+  - mean_reversion_10d_to_1d: coef=-0.0112, p=0.1350, R²=0.0011 [✗ NOT SIGNIFICANT]
+  - mean_reversion_20d_to_1d: coef=-0.0010, p=0.8541, R²=0.0000 [✗ NOT SIGNIFICANT]
+
+============================================================
+EXPERIMENT SUITE: MEAN_REVERSION
+Timestamp: 2026-04-24 15:45:46
+Variations run: 5
+Lookbacks: [1, 3, 5, 10, 20]
+  - mean_reversion_1d_to_1d: coef=-0.0695, p=0.0015, R²=0.0048 [✓ SIGNIFICANT]
+  - mean_reversion_3d_to_1d: coef=-0.0274, p=0.0378, R²=0.0021 [✓ SIGNIFICANT]
+  - mean_reversion_5d_to_1d: coef=-0.0171, p=0.1009, R²=0.0013 [✗ NOT SIGNIFICANT]
+  - mean_reversion_10d_to_1d: coef=-0.0112, p=0.1350, R²=0.0011 [✗ NOT SIGNIFICANT]
+  - mean_reversion_20d_to_1d: coef=-0.0010, p=0.8541, R²=0.0000 [✗ NOT SIGNIFICANT]
+
+============================================================
+EXPERIMENT SUITE: MEAN_REVERSION
+Timestamp: 2026-04-24 15:47:29
+Variations run: 5
+Lookbacks: [1, 3, 5, 10, 20]
+  - mean_reversion_1d_to_1d: coef=-0.0695, p=0.0015, R²=0.0048 [✓ SIGNIFICANT]
+  - mean_reversion_3d_to_1d: coef=-0.0274, p=0.0378, R²=0.0021 [✓ SIGNIFICANT]
+  - mean_reversion_5d_to_1d: coef=-0.0171, p=0.1009, R²=0.0013 [✗ NOT SIGNIFICANT]
+  - mean_reversion_10d_to_1d: coef=-0.0112, p=0.1350, R²=0.0011 [✗ NOT SIGNIFICANT]
+  - mean_reversion_20d_to_1d: coef=-0.0010, p=0.8541, R²=0.0000 [✗ NOT SIGNIFICANT]
+
+============================================================
+EXPERIMENT SUITE: MEAN_REVERSION
+Timestamp: 2026-04-24 15:47:47
+Variations run: 5
+Lookbacks: [1, 3, 5, 10, 20]
+  - mean_reversion_1d_to_1d: coef=-0.0695, p=0.0015, R²=0.0048 [✓ SIGNIFICANT]
+  - mean_reversion_3d_to_1d: coef=-0.0274, p=0.0378, R²=0.0021 [✓ SIGNIFICANT]
+  - mean_reversion_5d_to_1d: coef=-0.0171, p=0.1009, R²=0.0013 [✗ NOT SIGNIFICANT]
+  - mean_reversion_10d_to_1d: coef=-0.0112, p=0.1350, R²=0.0011 [✗ NOT SIGNIFICANT]
+  - mean_reversion_20d_to_1d: coef=-0.0010, p=0.8541, R²=0.0000 [✗ NOT SIGNIFICANT]
+
+============================================================
+EXPERIMENT SUITE: MEAN_REVERSION
+Timestamp: 2026-04-24 15:48:04
+Variations run: 5
+Lookbacks: [1, 3, 5, 10, 20]
+  - mean_reversion_1d_to_1d: coef=-0.0695, p=0.0015, R²=0.0048 [✓ SIGNIFICANT]
+  - mean_reversion_3d_to_1d: coef=-0.0274, p=0.0378, R²=0.0021 [✓ SIGNIFICANT]
+  - mean_reversion_5d_to_1d: coef=-0.0171, p=0.1009, R²=0.0013 [✗ NOT SIGNIFICANT]
+  - mean_reversion_10d_to_1d: coef=-0.0112, p=0.1350, R²=0.0011 [✗ NOT SIGNIFICANT]
+  - mean_reversion_20d_to_1d: coef=-0.0010, p=0.8541, R²=0.0000 [✗ NOT SIGNIFICANT]
+
+============================================================
+EXPERIMENT SUITE: MEAN_REVERSION
+Timestamp: 2026-04-24 15:59:01
+Variations run: 5
+Lookbacks: [1, 3, 5, 10, 20]
+  - mean_reversion_1d_to_1d: coef=-0.0695, p=0.0015, R²=0.0048 [✓ SIGNIFICANT]
+  - mean_reversion_3d_to_1d: coef=-0.0274, p=0.0378, R²=0.0021 [✓ SIGNIFICANT]
+  - mean_reversion_5d_to_1d: coef=-0.0171, p=0.1009, R²=0.0013 [✗ NOT SIGNIFICANT]
+  - mean_reversion_10d_to_1d: coef=-0.0112, p=0.1350, R²=0.0011 [✗ NOT SIGNIFICANT]
+  - mean_reversion_20d_to_1d: coef=-0.0010, p=0.8541, R²=0.0000 [✗ NOT SIGNIFICANT]

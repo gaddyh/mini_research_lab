@@ -6,6 +6,7 @@ from src.mini_research_lab import (
     add_return_features,
     MiniResearchLab,
     default_experiments,
+    parameterized_experiments,
     plot_experiment_bundle,
 )
 
