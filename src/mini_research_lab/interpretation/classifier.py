@@ -51,24 +51,22 @@ class DeterministicClassifier:
     
     def classify_existence(self, inputs: ClassificationInputs) -> SignalExistence:
         """
-        Deterministic signal existence classification.
+        Deterministic signal existence classification based on decisions.
         
         Rules:
-        - STRONG: Multiple significant p-values (< 0.05) across assets
-        - PARTIAL: Some significant p-values (< 0.05) 
-        - WEAK: Borderline p-values (0.05-0.10) but no significant ones
-        - NONE: No meaningful p-values (> 0.10)
+        - STRONG: All assets have PROMOTE decisions
+        - PARTIAL: Some assets have PROMOTE or REFINE decisions
+        - WEAK: Borderline evidence but no clear signal
+        - NONE: No meaningful signal
         """
-        significant_count = sum(1 for p in inputs.p_values if p < self.P_VALUE_SIGNIFICANT)
-        borderline_count = sum(1 for p in inputs.p_values 
-                             if self.P_VALUE_SIGNIFICANT <= p < self.P_VALUE_BORDERLINE)
+        promote_count = sum(1 for d in inputs.decisions if d == "PROMOTE")
+        refine_count = sum(1 for d in inputs.decisions if d == "REFINE")
+        total_assets = len(inputs.decisions)
         
-        if significant_count >= 2:
+        if promote_count == total_assets and total_assets > 0:
             return SignalExistence.STRONG
-        elif significant_count >= 1:
+        elif promote_count + refine_count > 0:
             return SignalExistence.PARTIAL
-        elif borderline_count >= 1:
-            return SignalExistence.WEAK
         else:
             return SignalExistence.NONE
     
@@ -121,45 +119,52 @@ class DeterministicClassifier:
     
     def classify_strength(self, inputs: ClassificationInputs, existence: SignalExistence) -> Strength:
         """
-        Deterministic signal strength classification.
+        Deterministic signal strength classification with hard caps.
         
-        Rules depend on existence to ensure consistency:
-        - STRONG: High R² (> 0.01) AND multiple significant assets
-        - MODERATE: Moderate R² (> 0.005) OR some significant assets
-        - WEAK: Low R² but some signal evidence
+        Rules:
+        - Hard R² caps to prevent overclaiming
+        - Apply survival rate caps
+        - Be conservative in strength assessment
         """
         if not inputs.r_squared_values:
             return Strength.WEAK
         
         avg_r_squared = sum(inputs.r_squared_values) / len(inputs.r_squared_values)
-        significant_assets = sum(1 for d in inputs.decisions if d in ["PROMOTE", "REFINE"])
+        median_r_squared = sorted(inputs.r_squared_values)[len(inputs.r_squared_values) // 2]
         
-        # Consistency rules based on existence
-        if existence == SignalExistence.NONE:
-            return Strength.WEAK
-        elif existence == SignalExistence.WEAK:
-            return Strength.MODERATE  # WEAK existence must have at least MODERATE strength
-        elif existence == SignalExistence.STRONG:
-            return Strength.STRONG
-        elif existence == SignalExistence.PARTIAL:
-            if significant_assets >= 2 and avg_r_squared >= self.R_SQUARED_MEANINGFUL:
-                return Strength.STRONG
-            elif significant_assets >= 1 and avg_r_squared >= self.R_SQUARED_MODERATE:
-                return Strength.MODERATE
-            else:
-                return Strength.WEAK
+        promote_count = sum(1 for d in inputs.decisions if d == "PROMOTE")
+        refine_count = sum(1 for d in inputs.decisions if d == "REFINE")
+        drop_count = sum(1 for d in inputs.decisions if d == "DROP")
+        
+        # Hard R² caps to prevent overclaiming
+        if avg_r_squared < 0.01:
+            base_strength = Strength.WEAK
+        elif avg_r_squared < 0.05:
+            base_strength = Strength.MODERATE
         else:
-            return Strength.WEAK
+            base_strength = Strength.STRONG
+        
+        # Apply stricter survival rate caps
+        if inputs.survival_rates and max(inputs.survival_rates) == 0.0:
+            if base_strength == Strength.STRONG:
+                base_strength = Strength.MODERATE
+        
+        # Additional cap: If drop_count > 0 and promote_count == 0, max_strength = MODERATE
+        if drop_count > 0 and promote_count == 0:
+            if base_strength == Strength.STRONG:
+                base_strength = Strength.MODERATE
+        
+        return base_strength
     
     def classify_asset_strength(self, symbol: str, decision: str, r_squared: float) -> AssetSignalStrength:
         """
         Classify individual asset signal strength.
         
         Rules:
-        - STRONG: PROMOTE decision
-        - MODERATE: REFINE decision with meaningful R²
-        - WEAK: REFINE decision with low R²
-        - NONE: DROP decision
+        - STRONGEST: PROMOTE decision (clear signal)
+        - MODERATE: REFINE decision with meaningful R² (partial signal)
+        - WEAK: REFINE decision with low R² (weak/partial signal)
+        - NONE: DROP decision (no signal)
         """
         if decision == "PROMOTE":
             return AssetSignalStrength.STRONG

@@ -40,9 +40,14 @@ class AssetBehaviorTemplates:
             return cls.UNIVERSAL_TEMPLATE
         elif behavior == AssetBehavior.SELECTIVE:
             parts = []
-            for strength, assets in asset_details.items():
-                if assets:
-                    parts.append(f"{strength.capitalize()}: {', '.join(assets)}")
+            # Order: strongest -> moderate -> weak -> none
+            for strength in ["strongest", "strong", "moderate", "weak", "none"]:
+                if strength in asset_details and asset_details[strength]:
+                    assets = asset_details[strength]
+                    if strength == "strongest":
+                        parts.append(f"Strongest: {', '.join(assets)}")
+                    else:
+                        parts.append(f"{strength.capitalize()}: {', '.join(assets)}")
             if parts:
                 return f"Selective.\n- " + "\n- ".join(parts) + "."
             else:

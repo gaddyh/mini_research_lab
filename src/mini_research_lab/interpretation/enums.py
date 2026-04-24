@@ -63,6 +63,7 @@ VALID_COMBINATIONS = {
     # Partial signal cases
     (SignalExistence.PARTIAL, AssetBehavior.SELECTIVE, TimeStability.NOT_ESTABLISHED, Strength.MODERATE),
     (SignalExistence.PARTIAL, AssetBehavior.SELECTIVE, TimeStability.FRAGILE, Strength.MODERATE),
+    (SignalExistence.PARTIAL, AssetBehavior.SELECTIVE, TimeStability.FRAGILE, Strength.STRONG),
     (SignalExistence.PARTIAL, AssetBehavior.SELECTIVE, TimeStability.STABLE, Strength.MODERATE),
     (SignalExistence.PARTIAL, AssetBehavior.UNIVERSAL, TimeStability.NOT_ESTABLISHED, Strength.MODERATE),
     (SignalExistence.PARTIAL, AssetBehavior.UNIVERSAL, TimeStability.FRAGILE, Strength.MODERATE),
@@ -71,6 +72,7 @@ VALID_COMBINATIONS = {
     # Strong signal cases
     (SignalExistence.STRONG, AssetBehavior.UNIVERSAL, TimeStability.STABLE, Strength.STRONG),
     (SignalExistence.STRONG, AssetBehavior.SELECTIVE, TimeStability.STABLE, Strength.STRONG),
+    (SignalExistence.STRONG, AssetBehavior.SELECTIVE, TimeStability.FRAGILE, Strength.STRONG),
 }
 
 

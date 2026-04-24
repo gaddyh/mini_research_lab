@@ -192,6 +192,7 @@ class SummaryBuilder:
         Groups assets by their signal strength for clean display.
         """
         asset_details = {
+            "strongest": [],
             "strong": [],
             "moderate": [],
             "weak": [],
@@ -200,7 +201,7 @@ class SummaryBuilder:
         
         for symbol, strength in asset_strengths.items():
             if strength == AssetSignalStrength.STRONG:
-                asset_details["strong"].append(symbol)
+                asset_details["strongest"].append(symbol)
             elif strength == AssetSignalStrength.MODERATE:
                 asset_details["moderate"].append(symbol)
             elif strength == AssetSignalStrength.WEAK:
