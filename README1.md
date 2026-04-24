@@ -8,7 +8,7 @@ A Python-based system for evaluating trading ideas as **statistical hypotheses**
 
 Most trading tools try to **find profitable strategies**.
 
-This system does something fundamentally different:
+This system does something different:
 
 > It tests whether an idea is **real, stable, and generalizable** — or just noise.
 
@@ -32,7 +32,15 @@ We ask:
 
 ---
 
-## 🖥️ Example Output
+## 🔍 Example Insights
+
+### ✅ Volatility Clustering
+
+```bash
+python cli.py --symbols AAPL MSFT SPY --family volatility_clustering
+```
+
+Output:
 
 ```
 CROSS-SYMBOL SUMMARY
@@ -43,27 +51,7 @@ VOLATILITY CLUSTERING:
   Confidence: HIGH
 ```
 
----
-
-## 🔥 Key Findings
-
-- Volatility clustering is a **stable cross-asset behavior**
-- Mean reversion is **short-term and regime-dependent**
-- Momentum signals were **inconsistent or contradictory**
-- Some signals exist but are **too weak to be useful**
-
----
-
-## 🔍 Example Insights
-
-### ✅ Volatility Clustering
-
-```bash
-python cli.py --symbols AAPL MSFT SPY --family volatility_clustering
-```
-
-Interpretation:
-
+📌 Interpretation:
 - Significant across all assets  
 - Consistent direction  
 - Meaningful explanatory power (R² up to ~0.12)  
@@ -79,8 +67,17 @@ python cli.py --symbols AAPL --family mean_reversion \
   --start-date 2020-01-01 --end-date 2023-12-31
 ```
 
-Interpretation:
+Output:
 
+```
+MEAN REVERSION:
+  0/1 → PROMOTE
+  1/1 → REFINE
+  ⚠ Signal is weak or regime-dependent
+  Confidence: MEDIUM
+```
+
+📌 Interpretation:
 - Strong only at 1-day horizon  
 - Rapid decay across longer windows  
 - Not stable over time  
@@ -96,7 +93,7 @@ Interpretation:
 - Volatility Clustering  
 - Moving Average Distance  
 
-Each family is tested across multiple parameter variations.
+Each family is tested across multiple parameter variations (e.g. lookbacks).
 
 ---
 
@@ -168,35 +165,32 @@ python cli.py --symbols AAPL MSFT SPY --family volatility_clustering
 
 ---
 
-## 📁 Project Structure
+## 📁 Output
+
+Results are saved to:
 
 ```
-mini_research_lab/
-│
-├── cli.py
-├── experiments/
-├── engine/
-├── reports/
-└── tests/
+reports/
+  ├── tables/
+  ├── figures/
+  └── *.json
 ```
 
 ---
 
-## 🧠 Why This Is Interesting
+## 🧠 Summary
 
-Most systems focus on:
-
-```
-finding strategies
-```
-
-This system focuses on:
+This project shifts the focus from:
 
 ```
-rejecting bad ideas
+“finding strategies”
 ```
 
-That shift reduces overfitting and leads to more robust insights.
+to:
+
+```
+validating ideas
+```
 
 ---
 
