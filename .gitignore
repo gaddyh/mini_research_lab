@@ -2,7 +2,9 @@
 venv/
 env/
 .env/
-
+tables/
+figures/
+reports/
 # Python
 __pycache__/
 *.py[cod]

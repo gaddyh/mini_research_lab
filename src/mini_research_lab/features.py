@@ -40,7 +40,14 @@ def add_return_features(df: pd.DataFrame, price_col: str = "close") -> pd.DataFr
     out["fwd_abs_ret_10d"] = out["fwd_ret_10d"].abs()
     out["fwd_abs_ret_20d"] = out["fwd_ret_20d"].abs()
 
-    out["ma_20"] = out[price_col].rolling(20).mean()
-    out["dist_from_ma20"] = out[price_col] / out["ma_20"] - 1
+    # Add moving average distance features
+    out["ma10"] = out[price_col].rolling(window=10).mean()
+    out["ma20"] = out[price_col].rolling(window=20).mean()
+    out["ma50"] = out[price_col].rolling(window=50).mean()
+    
+    # Calculate percentage distance from moving averages
+    out["dist_from_ma10"] = (out[price_col] - out["ma10"]) / out["ma10"]
+    out["dist_from_ma20"] = (out[price_col] - out["ma20"]) / out["ma20"]
+    out["dist_from_ma50"] = (out[price_col] - out["ma50"]) / out["ma50"]
 
     return out

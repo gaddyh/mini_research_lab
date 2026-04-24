@@ -96,4 +96,12 @@ def parameterized_experiments() -> list[ParameterizedExperiment]:
             title_template="Do big {lookback}-day moves tend to be followed by big 1-day moves?",
             description_template="Volatility clustering mini-project using {lookback}-day absolute returns."
         ),
+        ParameterizedExperiment(
+            base_name="ma_distance_reversion",
+            x_col_pattern="dist_from_ma{lookback}",
+            y_col="fwd_ret_1d",
+            lookbacks=[10, 20, 50],
+            title_template="Does distance from {lookback}-day moving average predict next-day return?",
+            description_template="Moving-average distance mini-project for mean reversion using {lookback}-day MA."
+        ),
     ]
