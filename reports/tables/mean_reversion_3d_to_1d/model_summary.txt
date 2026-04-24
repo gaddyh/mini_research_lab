@@ -2,9 +2,9 @@
 ==============================================================================
 Dep. Variable:             fwd_ret_1d   R-squared:                       0.002
 Model:                            OLS   Adj. R-squared:                  0.002
-Method:                 Least Squares   F-statistic:                     4.319
+Method:                 Least Squares   F-statistic:                     4.317
 Date:                Fri, 24 Apr 2026   Prob (F-statistic):             0.0378
-Time:                        17:38:50   Log-Likelihood:                 5276.8
+Time:                        18:05:16   Log-Likelihood:                 5276.7
 No. Observations:                2085   AIC:                        -1.055e+04
 Df Residuals:                    2083   BIC:                        -1.054e+04
 Df Model:                           1                                         
@@ -12,13 +12,13 @@ Covariance Type:            nonrobust
 ==============================================================================
                  coef    std err          t      P>|t|      [0.025      0.975]
 ------------------------------------------------------------------------------
-const          0.0012      0.000      2.792      0.005       0.000       0.002
+const          0.0012      0.000      2.787      0.005       0.000       0.002
 ret_3d        -0.0274      0.013     -2.078      0.038      -0.053      -0.002
 ==============================================================================
-Omnibus:                      277.374   Durbin-Watson:                   2.086
-Prob(Omnibus):                  0.000   Jarque-Bera (JB):             3267.453
-Skew:                           0.089   Prob(JB):                         0.00
-Kurtosis:                       9.130   Cond. No.                         31.3
+Omnibus:                      277.346   Durbin-Watson:                   2.086
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):             3265.899
+Skew:                           0.090   Prob(JB):                         0.00
+Kurtosis:                       9.129   Cond. No.                         31.3
 ==============================================================================
 
 Notes:

@@ -578,13 +578,21 @@ def get_family_decision(scored_experiments, param_exp):
     if r2_decays:
         reason_codes.append("effect_decays_with_lookback")
     
-    # Apply corrected decision rules
+    # Calculate average stability score across experiments
+    stability_scores = []
+    for exp in scored_experiments:
+        if 'stability' in exp:
+            stability_scores.append(exp['stability']['stability_score'])
+    
+    avg_stability_score = sum(stability_scores) / len(stability_scores) if stability_scores else 0
+    
+    # Apply corrected decision rules with stability requirements
     if (valid_significant_count >= 2 and stability_score >= 0.5 and 
-        direction_consistency >= 0.8 and max_r2 > 0.001):
+        direction_consistency >= 0.8 and max_r2 > 0.001 and avg_stability_score >= 70):
         decision = "PROMOTE"
         confidence = 0.8
         reason_codes.append("meets_promote_criteria")
-    elif (valid_significant_count >= 1 and wrong_direction_significant == 0):
+    elif (valid_significant_count >= 1 and wrong_direction_significant == 0 and avg_stability_score >= 40):
         decision = "REFINE"
         confidence = 0.6
         reason_codes.append("meets_refine_criteria")
@@ -969,13 +977,20 @@ for exp_name, result in results.items():
         output_dir=figures_dir
     )
 
-    # Create and save JSON output
-    experiment_json = create_experiment_json(exp_name, param_exp, result, tables_dir, figures_dir)
+    # Create experiment JSON
+    experiment_json = create_experiment_json(
+        exp_name=exp_name,
+        param_exp=param_exp,
+        result=result,
+        tables_dir=tables_dir,
+        figures_dir=figures_dir
+    )
+
     with open(tables_dir / "experiment.json", "w") as f:
         json.dump(experiment_json, f, indent=2)
 
 print(f"\nAll results saved to reports/tables/ and reports/figures/")
-
+# ... (rest of the code remains the same)
 # Create comparison summary file
 comparison_dir = Path("reports/tables") / f"{param_exp.base_name}_comparison"
 comparison_dir.mkdir(parents=True, exist_ok=True)
